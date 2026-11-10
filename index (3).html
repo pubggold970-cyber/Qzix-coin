@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#08111f">
+<title>QZIX COIN | Trading Dashboard</title>
+<style>
+:root{--bg:#08111f;--panel:#101d30;--panel2:#14243a;--line:#263952;--text:#eef5ff;--muted:#9db0c9;--green:#28d69a;--red:#ff647c;--gold:#f6c85f}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#17345a 0,#08111f 38%);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+.wrap{max-width:1120px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#f6c85f,#e78a36);display:grid;place-items:center;color:#172033;font-weight:900;font-size:20px;box-shadow:0 8px 30px #f6c85f33}
+h1{font-size:23px;margin:0;letter-spacing:1.5px}.sub{color:var(--muted);font-size:12px;margin-top:4px}.demo{border:1px solid #8d713b;color:var(--gold);background:#302718;padding:8px 12px;border-radius:30px;font-size:12px;font-weight:bold}
+.hero{margin:28px 0 18px;padding:25px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(120deg,#152b47,#101b2d);display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.eyebrow{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1.3px}.price{font-size:42px;font-weight:800;margin:8px 0}.change{color:var(--green);font-size:13px}.hero-right{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:#0b1728;border:1px solid var(--line);padding:13px 16px;border-radius:14px;min-width:120px}.stat small{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}.stat b{font-size:17px}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.card{background:#101d30;border:1px solid var(--line);border-radius:18px;padding:19px}.card h2{font-size:16px;margin:0 0 16px}.muted{color:var(--muted);font-size:12px;line-height:1.5}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.trade{border:0;border-radius:13px;padding:15px;color:#06131e;font-size:15px;font-weight:800;cursor:pointer}.buy{background:var(--green)}.sell{background:var(--red)}.trade:disabled{opacity:.4;cursor:not-allowed}
+.balance{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}.balance:last-child{border:0}.balance span{color:var(--muted)}
+.notice{margin-top:14px;padding:12px;border-radius:12px;background:#0b1728;color:var(--muted);font-size:12px;line-height:1.5}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:11px 7px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:500}td{color:#e4edfa}.empty{text-align:center;color:var(--muted);padding:20px}
+footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:15px}.price{font-size:36px}.hero{padding:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="logo">Q</div><div><h1>QZIX COIN</h1><div class="sub">Digital Share Demo Dashboard</div></div></div>
+    <div class="demo">DEMO MODE · NOT REAL TRADING</div>
+  </header>
+  <section class="hero">
+    <div><div class="eyebrow">Current Demo Price</div><div class="price" id="price">₹2.00</div><div class="change" id="movement">Starting price · ₹2 minimum</div></div>
+    <div class="hero-right">
+      <div class="stat"><small>My Shares</small><b id="shares">0</b></div>
+      <div class="stat"><small>Demo Wallet</small><b id="wallet">₹1,000</b></div>
+      <div class="stat"><small>Total Demo Trades</small><b id="trades">0</b></div>
+    </div>
+  </section>
+  <div class="grid">
+    <section class="card">
+      <h2>Buy / Sell — One share per trade</h2>
+      <div class="muted">Each successful demo trade changes the displayed price by ₹2. Buy from the demo company to move price up; sell to the demo market to move it down.</div>
+      <div class="actions"><button class="trade buy" id="buyBtn">BUY 1 SHARE</button><button class="trade sell" id="sellBtn">SELL 1 SHARE</button></div>
+      <div class="balance"><span>Buy price</span><b id="buyPrice">₹2.00</b></div>
+      <div class="balance"><span>Sell price</span><b id="sellPrice">₹2.00</b></div>
+      <div class="balance"><span>Price movement</span><b>± ₹2 per trade</b></div>
+      <div class="notice" id="message" aria-live="polite">Welcome! This is a browser-only demonstration. Your test wallet and trades stay on this device.</div>
+    </section>
+    <section class="card">
+      <h2>My Demo Account</h2>
+      <div class="balance"><span>Available wallet</span><b id="wallet2">₹1,000.00</b></div>
+      <div class="balance"><span>Shares owned</span><b id="shares2">0</b></div>
+      <div class="balance"><span>Estimated share value</span><b id="value">₹0.00</b></div>
+      <div class="balance"><span>Demo account status</span><b style="color:var(--gold)">Local only</b></div>
+      <div class="notice">Resetting the page may reset your demo account. No payment, deposit, withdrawal, real ownership or real buyer/seller matching is provided.</div>
+    </section>
+  </div>
+  <section class="card" style="margin-top:16px">
+    <h2>Recent Transactions</h2>
+    <div style="overflow-x:auto"><table><thead><tr><th>Time</th><th>Action</th><th>Price</th><th>Wallet after</th><th>Shares after</th></tr></thead><tbody id="history"><tr><td colspan="5" class="empty">No demo transactions yet.</td></tr></tbody></table></div>
+  </section>
+  <footer>QZIX COIN · Prototype only · No guaranteed profit · Not an investment offer</footer>
+</div>
+<script>
+let price=2, wallet=1000, shares=0, trades=0, history=[];
+const money=n=>'₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+function render(){
+ document.getElementById('price').textContent=money(price);
+ document.getElementById('buyPrice').textContent=money(price);
+ document.getElementById('sellPrice').textContent=money(price);
+ document.getElementById('wallet').textContent=money(wallet);
+ document.getElementById('wallet2').textContent=money(wallet);
+ document.getElementById('shares').textContent=shares;
+ document.getElementById('shares2').textContent=shares;
+ document.getElementById('trades').textContent=trades;
+ document.getElementById('value').textContent=money(shares*price);
+ document.getElementById('buyBtn').disabled=wallet<price;
+ document.getElementById('sellBtn').disabled=shares<1;
+ const body=document.getElementById('history');
+ body.innerHTML=history.length?history.map(x=>`<tr><td>${x.time}</td><td style="color:${x.action==='BUY'?'#28d69a':'#ff647c'}">${x.action}</td><td>${money(x.price)}</td><td>${money(x.wallet)}</td><td>${x.shares}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No demo transactions yet.</td></tr>';
+}
+function trade(action){
+ if(action==='BUY'){
+  if(wallet<price){msg('Not enough demo wallet balance.');return;}
+  wallet-=price; shares++; price+=2;
+ }else{
+  if(shares<1){msg('You do not own a share to sell.');return;}
+  wallet+=price; shares--; price=Math.max(2,price-2);
+ }
+ trades++;
+ history.unshift({time:new Date().toLocaleTimeString(),action,price:action==='BUY'?price-2:price+2,wallet,shares});
+ history=history.slice(0,12);
+ document.getElementById('movement').textContent=action==='BUY'?'▲ Demo price increased by ₹2':'▼ Demo price decreased by ₹2 (minimum ₹2)';
+ msg(action==='BUY'?'Demo buy successful: 1 share added.':'Demo sell successful: 1 share sold.');
+ render();
+}
+function msg(t){document.getElementById('message').textContent=t;}
+document.getElementById('buyBtn').addEventListener('click',()=>trade('BUY'));
+document.getElementById('sellBtn').addEventListener('click',()=>trade('SELL'));
+render();
+</script>
+</body>
+</html>
