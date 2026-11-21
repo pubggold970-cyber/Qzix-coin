@@ -59,7 +59,7 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
     <div><div class="eyebrow">Current Demo Token Price</div><div class="price" id="price">₹2.00</div><div class="change">Demo starting price · ₹2 per token</div></div>
     <div class="hero-right">
       <div class="stat"><small>My Tokens</small><b id="shares">0</b></div>
-      <div class="stat"><small>Demo Wallet</small><b id="wallet">₹1,000.00</b></div>
+      <div class="stat"><small>UPI Payment</small><b>Enabled</b></div>
       <div class="stat"><small>Tokens Available</small><b id="available">2,800</b></div>
     </div>
   </section>
@@ -78,15 +78,15 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
   <div class="grid">
     <section class="card">
       <h2>Buy QZIX Token</h2>
-      <p class="muted">Select a State above and press BUY on an available Token ID. This is a local browser demo only; no real payment is taken.</p>
+      <p class="muted">Tap any available Token ID in the State list to open a UPI payment app. Payment is ₹2 per token. Payment is not ownership-confirmed until it is checked separately.</p>
       <div class="balance"><span>Selected Token ID</span><b id="selectedToken">None</b></div>
       <div class="balance"><span>Token price</span><b id="buyPrice">₹2.00</b></div>
-      <div class="actions"><button class="trade buy" id="buyBtn" disabled>BUY SELECTED TOKEN</button></div>
+      <div class="notice">UPI ID: <b>7814244038@ptyes</b><br>Only the BUY payment flow is available. No Sell option.</div>
       <div class="notice" id="message" aria-live="polite">Welcome! Choose an available Token ID to test a demo purchase.</div>
     </section>
     <section class="card">
       <h2>My QZIX Tokens</h2>
-      <div class="balance"><span>Available demo wallet</span><b id="wallet2">₹1,000.00</b></div>
+      <div class="balance"><span>Payment method</span><b>UPI</b></div>
       <div class="balance"><span>Tokens owned in this demo</span><b id="shares2">0</b></div>
       <div class="balance"><span>Demo token value</span><b id="value">₹0.00</b></div>
       <div class="balance"><span>Account status</span><b style="color:var(--gold)">Local demo only</b></div>
@@ -119,7 +119,8 @@ const indianStates = [
  ["Tripura","TR"],["Uttar Pradesh","UP"],["Uttarakhand","UK"],["West Bengal","WB"]
 ];
 const TOKEN_PRICE=2;
-let wallet=1000, ownedTokens=[], selectedToken=null, history=[];
+const UPI_ID="7814244038@ptyes";
+let ownedTokens=[], selectedToken=null, history=[];
 const money=n=>'₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
 function allTokenIds(){return indianStates.flatMap(([name,code])=>Array.from({length:100},(_,i)=>({id:code+'-'+String(i+1).padStart(3,'0'),state:name,code})));}
 const tokenCatalog=allTokenIds();
@@ -129,13 +130,13 @@ function renderStateTokens(){
   const tokens=Array.from({length:100},(_,i)=>{
    const id=code+'-'+String(i+1).padStart(3,'0');
    const owned=ownedTokens.includes(id), selected=selectedToken===id;
-   const cls=owned?'owned':(selected?'selected':'available');
-   const label=owned?'OWNED':(selected?'SELECTED':'BUY');
-   return '<button type="button" class="token-chip '+cls+(selected?' selected':'')+'" data-token="'+id+'" '+(owned?'disabled':'')+' aria-label="'+id+' '+label+'">'+id+'</button>';
+   const cls=owned?'owned':'available';
+   const label=owned?'OWNED':'BUY';
+   return '<button type="button" class="token-chip '+cls+'" data-token="'+id+'" '+(owned?'disabled':'')+' aria-label="BUY '+id+'" title="Tap to pay for '+id+'">'+id+'</button>';
   }).join('');
   return '<details class="state-item" data-state="'+name.toLowerCase()+'" data-code="'+code.toLowerCase()+'"><summary><span>'+name+'</span><span class="state-count">100 Tokens ▾</span></summary><div class="token-list">'+tokens+'</div></details>';
  }).join('');
- grid.querySelectorAll('button[data-token]').forEach(btn=>btn.addEventListener('click',()=>selectToken(btn.dataset.token)));
+ grid.querySelectorAll('button[data-token]').forEach(btn=>btn.addEventListener('click',()=>openUpiPayment(btn.dataset.token)));
  filterStates(document.getElementById('stateSearch').value);
 }
 function filterStates(query){
@@ -146,39 +147,25 @@ function filterStates(query){
  });
  document.getElementById('noStateResults').hidden=visible!==0;
 }
-function selectToken(id){
- if(ownedTokens.includes(id)){msg(id+' is already in your demo account.');return;}
+function openUpiPayment(id){
+ if(ownedTokens.includes(id)){msg(id+' is already marked as owned.');return;}
  selectedToken=id;
  document.getElementById('selectedToken').textContent=id;
- document.getElementById('buyBtn').disabled=wallet<TOKEN_PRICE;
- msg('Selected '+id+'. Press BUY SELECTED TOKEN to complete the demo purchase.');
- renderStateTokens();
+ const params=new URLSearchParams({pa:UPI_ID,pn:'QZIX COIN',am:TOKEN_PRICE.toFixed(2),cu:'INR',tn:'QZIX Token '+id,tr:'QZIX-'+id});
+ msg('Opening your UPI app for '+id+' — ₹'+TOKEN_PRICE+'. Complete payment in your UPI app. Payment is not automatically verified here.');
+ window.location.href='upi://pay?'+params.toString();
 }
 function render(){
  document.getElementById('price').textContent=money(TOKEN_PRICE);
  document.getElementById('buyPrice').textContent=money(TOKEN_PRICE);
- document.getElementById('wallet').textContent=money(wallet);
- document.getElementById('wallet2').textContent=money(wallet);
  document.getElementById('shares').textContent=ownedTokens.length;
  document.getElementById('shares2').textContent=ownedTokens.length;
  document.getElementById('available').textContent=tokenCatalog.length-ownedTokens.length;
  document.getElementById('value').textContent=money(ownedTokens.length*TOKEN_PRICE);
- document.getElementById('buyBtn').disabled=!selectedToken||ownedTokens.includes(selectedToken)||wallet<TOKEN_PRICE;
  const mine=document.getElementById('myTokens');
  mine.innerHTML=ownedTokens.length?ownedTokens.map(id=>'<span class="token-chip owned">'+id+'</span>').join(''):'<span class="muted">No demo tokens purchased yet.</span>';
  const body=document.getElementById('history');
  body.innerHTML=history.length?history.map(x=>'<tr><td>'+x.time+'</td><td style="color:#28d69a">BUY TOKEN</td><td>'+x.id+'</td><td>'+money(x.price)+'</td><td>'+money(x.wallet)+'</td></tr>').join(''):'<tr><td colspan="5" class="empty">No demo purchases yet.</td></tr>';
-}
-function buySelectedToken(){
- if(!selectedToken){msg('Please select a Token ID first.');return;}
- if(ownedTokens.includes(selectedToken)){msg('This Token ID is already marked as owned in your demo.');return;}
- if(wallet<TOKEN_PRICE){msg('Insufficient demo wallet balance.');return;}
- const id=selectedToken;wallet-=TOKEN_PRICE;ownedTokens.push(id);
- history.unshift({time:new Date().toLocaleTimeString(),id,price:TOKEN_PRICE,wallet});
- history=history.slice(0,20);selectedToken=null;
- document.getElementById('selectedToken').textContent='None';
- msg('Demo purchase successful: '+id+' added to My QZIX Tokens. No real payment or ownership was created.');
- renderStateTokens();render();
 }
 function msg(t){document.getElementById('message').textContent=t;}
 function verifyToken(){
@@ -190,7 +177,6 @@ function verifyToken(){
  result.textContent=ownedTokens.includes(id)?id+' is listed in this browser’s demo account. This is not legal or blockchain ownership verification.':id+' exists in the demo list but is not owned in this browser’s demo account. This is not a live ownership registry.';
 }
 document.getElementById('stateSearch').addEventListener('input',e=>filterStates(e.target.value));
-document.getElementById('buyBtn').addEventListener('click',buySelectedToken);
 document.getElementById('verifyBtn').addEventListener('click',verifyToken);
 renderStateTokens();render();
 </script>
