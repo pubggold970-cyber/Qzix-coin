@@ -25,6 +25,7 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
 .state-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .state-head h2{font-size:16px;margin:0}
 .state-total{color:var(--gold);font-size:12px;font-weight:bold}
+.state-search{width:100%;margin:0 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:#0b1728;color:var(--text);font-size:14px;outline:none}.state-search:focus{border-color:var(--gold);box-shadow:0 0 0 2px #f6c85f22}.state-search::placeholder{color:#8195af}
 .state-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .state-item{background:#0b1728;border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
 .state-item summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;font-weight:bold;list-style:none}
@@ -57,8 +58,10 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
       <h2 id="stateTitle">India — State-wise QZIX Token List</h2>
       <div class="state-total">28 States · 100 Tokens Each · Total 2,800</div>
     </div>
-    <p class="muted">Select a State to view its 100 token IDs. This is the state-wise token display; it does not create or verify real ownership.</p>
+    <p class="muted">Search by State name or code, then select a State to view its 100 token IDs. This is the state-wise token display; it does not create or verify real ownership.</p>
+    <input id="stateSearch" class="state-search" type="search" placeholder="Search State (e.g. Punjab or PB)" aria-label="Search Indian States" autocomplete="off">
     <div class="state-grid" id="stateGrid"></div>
+    <p class="muted" id="noStateResults" hidden>No matching State found.</p>
   </section>
   <div class="grid">
     <section class="card">
@@ -100,9 +103,21 @@ function renderStateTokens(){
  const grid=document.getElementById('stateGrid');
  grid.innerHTML=indianStates.map(([name,code])=>{
    const tokens=Array.from({length:100},(_,i)=>'<span class="token-chip">'+code+'-'+String(i+1).padStart(3,'0')+'</span>').join('');
-   return '<details class="state-item"><summary><span>'+name+'</span><span class="state-count">100 Tokens ▾</span></summary><div class="token-list">'+tokens+'</div></details>';
+   return '<details class="state-item" data-state="'+name.toLowerCase()+'" data-code="'+code.toLowerCase()+'"><summary><span>'+name+'</span><span class="state-count">100 Tokens ▾</span></summary><div class="token-list">'+tokens+'</div></details>';
  }).join('');
+ filterStates('');
 }
+function filterStates(query){
+ const q=query.trim().toLowerCase();
+ let visible=0;
+ document.querySelectorAll('#stateGrid .state-item').forEach(item=>{
+  const match=item.dataset.state.includes(q)||item.dataset.code.includes(q);
+  item.hidden=!match;
+  if(match) visible++;
+ });
+ document.getElementById('noStateResults').hidden=visible!==0;
+}
+document.getElementById('stateSearch').addEventListener('input',e=>filterStates(e.target.value));
 
 let price=2, wallet=1000, shares=0, trades=0, history=[];
 const money=n=>'₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
