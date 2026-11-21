@@ -75,16 +75,7 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
     <p class="muted" id="noStateResults" hidden>No matching State found.</p>
   </section>
 
-  <div class="grid">
-    <section class="card">
-      <h2>Buy QZIX Token</h2>
-      <p class="muted">Tap any available Token ID in the State list to open a UPI payment app. Payment is ₹2 per token. Payment is not ownership-confirmed until it is checked separately.</p>
-      <div class="balance"><span>Selected Token ID</span><b id="selectedToken">None</b></div>
-      <div class="balance"><span>Token price</span><b id="buyPrice">₹2.00</b></div>
-      <div class="notice">UPI ID: <b>7814244038@ptyes</b><br>Only the BUY payment flow is available. No Sell option.</div>
-      <div class="notice" id="message" aria-live="polite">Welcome! Choose an available Token ID to test a demo purchase.</div>
-    </section>
-    <section class="card">
+  <section class="card">
       <h2>My QZIX Tokens</h2>
       <div class="balance"><span>Payment method</span><b>UPI</b></div>
       <div class="balance"><span>Tokens owned in this demo</span><b id="shares2">0</b></div>
@@ -93,7 +84,6 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
       <div id="myTokens" class="token-list"><span class="muted">No demo tokens purchased yet.</span></div>
       <div class="notice">Demo purchases are stored only in this browser session. They do not create real ownership, transferable tokens, or payment records.</div>
     </section>
-  </div>
 
   <section class="card" style="margin-top:16px">
     <h2>Token Ownership Verification — Demo</h2>
@@ -150,14 +140,12 @@ function filterStates(query){
 function openUpiPayment(id){
  if(ownedTokens.includes(id)){msg(id+' is already marked as owned.');return;}
  selectedToken=id;
- document.getElementById('selectedToken').textContent=id;
  const params=new URLSearchParams({pa:UPI_ID,pn:'QZIX COIN',am:TOKEN_PRICE.toFixed(2),cu:'INR',tn:'QZIX Token '+id,tr:'QZIX-'+id});
  msg('Opening your UPI app for '+id+' — ₹'+TOKEN_PRICE+'. Complete payment in your UPI app. Payment is not automatically verified here.');
  window.location.href='upi://pay?'+params.toString();
 }
 function render(){
  document.getElementById('price').textContent=money(TOKEN_PRICE);
- document.getElementById('buyPrice').textContent=money(TOKEN_PRICE);
  document.getElementById('shares').textContent=ownedTokens.length;
  document.getElementById('shares2').textContent=ownedTokens.length;
  document.getElementById('available').textContent=tokenCatalog.length-ownedTokens.length;
