@@ -20,6 +20,20 @@ h1{font-size:23px;margin:0;letter-spacing:1.5px}.sub{color:var(--muted);font-siz
 .notice{margin-top:14px;padding:12px;border-radius:12px;background:#0b1728;color:var(--muted);font-size:12px;line-height:1.5}
 table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:11px 7px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:500}td{color:#e4edfa}.empty{text-align:center;color:var(--muted);padding:20px}
 footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
+
+.state-section{margin:16px 0;background:#101d30;border:1px solid var(--line);border-radius:18px;padding:19px}
+.state-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.state-head h2{font-size:16px;margin:0}
+.state-total{color:var(--gold);font-size:12px;font-weight:bold}
+.state-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.state-item{background:#0b1728;border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+.state-item summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;font-weight:bold;list-style:none}
+.state-item summary::-webkit-details-marker{display:none}
+.state-count{color:var(--green);font-size:11px;white-space:nowrap}
+.token-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-top:12px}
+.token-chip{border:1px solid #29435e;background:#14243a;color:#dceaff;border-radius:6px;padding:5px 2px;text-align:center;font-size:10px}
+@media(max-width:420px){.state-grid{grid-template-columns:1fr}.token-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
 @media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:15px}.price{font-size:36px}.hero{padding:20px}}
 </style>
 </head>
@@ -36,6 +50,15 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
       <div class="stat"><small>Demo Wallet</small><b id="wallet">₹1,000</b></div>
       <div class="stat"><small>Total Demo Trades</small><b id="trades">0</b></div>
     </div>
+  </section>
+
+  <section class="state-section" aria-labelledby="stateTitle">
+    <div class="state-head">
+      <h2 id="stateTitle">India — State-wise QZIX Token List</h2>
+      <div class="state-total">28 States · 100 Tokens Each · Total 2,800</div>
+    </div>
+    <p class="muted">Select a State to view its 100 token IDs. This is the state-wise token display; it does not create or verify real ownership.</p>
+    <div class="state-grid" id="stateGrid"></div>
   </section>
   <div class="grid">
     <section class="card">
@@ -63,6 +86,24 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
   <footer>QZIX COIN · Prototype only · No guaranteed profit · Not an investment offer</footer>
 </div>
 <script>
+
+const indianStates = [
+ ["Andhra Pradesh","AP"],["Arunachal Pradesh","AR"],["Assam","AS"],["Bihar","BR"],
+ ["Chhattisgarh","CG"],["Goa","GA"],["Gujarat","GJ"],["Haryana","HR"],
+ ["Himachal Pradesh","HP"],["Jharkhand","JH"],["Karnataka","KA"],["Kerala","KL"],
+ ["Madhya Pradesh","MP"],["Maharashtra","MH"],["Manipur","MN"],["Meghalaya","ML"],
+ ["Mizoram","MZ"],["Nagaland","NL"],["Odisha","OD"],["Punjab","PB"],
+ ["Rajasthan","RJ"],["Sikkim","SK"],["Tamil Nadu","TN"],["Telangana","TS"],
+ ["Tripura","TR"],["Uttar Pradesh","UP"],["Uttarakhand","UK"],["West Bengal","WB"]
+];
+function renderStateTokens(){
+ const grid=document.getElementById('stateGrid');
+ grid.innerHTML=indianStates.map(([name,code])=>{
+   const tokens=Array.from({length:100},(_,i)=>'<span class="token-chip">'+code+'-'+String(i+1).padStart(3,'0')+'</span>').join('');
+   return '<details class="state-item"><summary><span>'+name+'</span><span class="state-count">100 Tokens ▾</span></summary><div class="token-list">'+tokens+'</div></details>';
+ }).join('');
+}
+
 let price=2, wallet=1000, shares=0, trades=0, history=[];
 const money=n=>'₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
 function render(){
@@ -98,6 +139,7 @@ function trade(action){
 function msg(t){document.getElementById('message').textContent=t;}
 document.getElementById('buyBtn').addEventListener('click',()=>trade('BUY'));
 document.getElementById('sellBtn').addEventListener('click',()=>trade('SELL'));
+renderStateTokens();
 render();
 </script>
 </body>
