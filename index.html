@@ -37,7 +37,13 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
 .state-item summary::-webkit-details-marker{display:none}
 .state-count{color:var(--green);font-size:11px;white-space:nowrap}
 .token-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-top:12px}
-.token-chip{border:1px solid #29435e;background:#14243a;color:#dceaff;border-radius:6px;padding:5px 2px;text-align:center;font-size:10px}
+.token-chip{border:1px solid #29435e;background:#14243a;color:#dceaff;border-radius:6px;padding:6px 2px;text-align:center;font-size:10px}
+.token-chip.available{cursor:pointer}.token-chip.available:hover{border-color:var(--gold);color:var(--gold)}
+.token-chip.owned{border-color:#287d64;background:#12372f;color:#78e6bd}
+.token-chip.selected{outline:2px solid var(--gold);outline-offset:1px}
+.token-chip:disabled{cursor:not-allowed;opacity:.8}
+.verify-row{display:flex;gap:10px;align-items:center}.verify-row .state-search{margin:0;flex:1}.verify-row button{white-space:nowrap}
+@media(max-width:420px){.verify-row{flex-direction:column;align-items:stretch}.verify-row button{width:100%}}
 @media(max-width:420px){.state-grid{grid-template-columns:1fr}.token-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 @media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:15px}.price{font-size:36px}.hero{padding:20px}}
@@ -46,55 +52,63 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><div class="logo">Q</div><div><h1>QZIX COIN</h1><div class="sub">Digital Share Demo Dashboard</div></div></div>
+    <div class="brand"><div class="logo">Q</div><div><h1>QZIX COIN</h1><div class="sub">State-wise Fixed Token Demo</div></div></div>
     <div class="demo">DEMO MODE · NOT REAL TRADING</div>
   </header>
   <section class="hero">
-    <div><div class="eyebrow">Current Demo Price</div><div class="price" id="price">₹2.00</div><div class="change" id="movement">Starting price · ₹2 minimum</div></div>
+    <div><div class="eyebrow">Current Demo Token Price</div><div class="price" id="price">₹2.00</div><div class="change">Demo starting price · ₹2 per token</div></div>
     <div class="hero-right">
-      <div class="stat"><small>My Shares</small><b id="shares">0</b></div>
-      <div class="stat"><small>Demo Wallet</small><b id="wallet">₹1,000</b></div>
-      <div class="stat"><small>Total Demo Trades</small><b id="trades">0</b></div>
+      <div class="stat"><small>My Tokens</small><b id="shares">0</b></div>
+      <div class="stat"><small>Demo Wallet</small><b id="wallet">₹1,000.00</b></div>
+      <div class="stat"><small>Tokens Available</small><b id="available">2,800</b></div>
     </div>
   </section>
 
   <section class="state-section" aria-labelledby="stateTitle">
     <div class="state-head">
       <h2 id="stateTitle">India — State-wise QZIX Token List</h2>
-      <div class="state-total">28 States · 100 Tokens Each · Total 2,800</div>
+      <div class="state-total">28 States · 100 Fixed Tokens Each · Total 2,800</div>
     </div>
-    <p class="muted">Search by State name or code, then select a State to view its 100 token IDs. This is the state-wise token display; it does not create or verify real ownership.</p>
+    <p class="muted">Search a State, open it, then choose an available Token ID to try a demo purchase. Each State has its own 100 fixed Token IDs.</p>
     <input id="stateSearch" class="state-search" type="search" placeholder="Search State (e.g. Punjab or PB)" aria-label="Search Indian States" autocomplete="off">
     <div class="state-grid" id="stateGrid"></div>
     <p class="muted" id="noStateResults" hidden>No matching State found.</p>
   </section>
+
   <div class="grid">
     <section class="card">
-      <h2>Buy / Sell — One share per trade</h2>
-      <div class="muted">Each successful demo trade changes the displayed price by ₹2. Buy from the demo company to move price up; sell to the demo market to move it down.</div>
-      <div class="actions"><button class="trade buy" id="buyBtn">BUY 1 SHARE</button><button class="trade sell" id="sellBtn">SELL 1 SHARE</button></div>
-      <div class="balance"><span>Buy price</span><b id="buyPrice">₹2.00</b></div>
-      <div class="balance"><span>Sell price</span><b id="sellPrice">₹2.00</b></div>
-      <div class="balance"><span>Price movement</span><b>± ₹2 per trade</b></div>
-      <div class="notice" id="message" aria-live="polite">Welcome! This is a browser-only demonstration. Your test wallet and trades stay on this device.</div>
+      <h2>Buy QZIX Token</h2>
+      <p class="muted">Select a State above and press BUY on an available Token ID. This is a local browser demo only; no real payment is taken.</p>
+      <div class="balance"><span>Selected Token ID</span><b id="selectedToken">None</b></div>
+      <div class="balance"><span>Token price</span><b id="buyPrice">₹2.00</b></div>
+      <div class="actions"><button class="trade buy" id="buyBtn" disabled>BUY SELECTED TOKEN</button></div>
+      <div class="notice" id="message" aria-live="polite">Welcome! Choose an available Token ID to test a demo purchase.</div>
     </section>
     <section class="card">
-      <h2>My Demo Account</h2>
-      <div class="balance"><span>Available wallet</span><b id="wallet2">₹1,000.00</b></div>
-      <div class="balance"><span>Shares owned</span><b id="shares2">0</b></div>
-      <div class="balance"><span>Estimated share value</span><b id="value">₹0.00</b></div>
-      <div class="balance"><span>Demo account status</span><b style="color:var(--gold)">Local only</b></div>
-      <div class="notice">Resetting the page may reset your demo account. No payment, deposit, withdrawal, real ownership or real buyer/seller matching is provided.</div>
+      <h2>My QZIX Tokens</h2>
+      <div class="balance"><span>Available demo wallet</span><b id="wallet2">₹1,000.00</b></div>
+      <div class="balance"><span>Tokens owned in this demo</span><b id="shares2">0</b></div>
+      <div class="balance"><span>Demo token value</span><b id="value">₹0.00</b></div>
+      <div class="balance"><span>Account status</span><b style="color:var(--gold)">Local demo only</b></div>
+      <div id="myTokens" class="token-list"><span class="muted">No demo tokens purchased yet.</span></div>
+      <div class="notice">Demo purchases are stored only in this browser session. They do not create real ownership, transferable tokens, or payment records.</div>
     </section>
   </div>
+
   <section class="card" style="margin-top:16px">
-    <h2>Recent Transactions</h2>
-    <div style="overflow-x:auto"><table><thead><tr><th>Time</th><th>Action</th><th>Price</th><th>Wallet after</th><th>Shares after</th></tr></thead><tbody id="history"><tr><td colspan="5" class="empty">No demo transactions yet.</td></tr></tbody></table></div>
+    <h2>Token Ownership Verification — Demo</h2>
+    <p class="muted">Enter a Token ID to check whether it appears in this browser's demo account.</p>
+    <div class="verify-row"><input id="verifyInput" class="state-search" type="text" placeholder="Example: PB-001" aria-label="Token ID to verify"><button class="trade buy" id="verifyBtn" type="button">VERIFY TOKEN</button></div>
+    <div class="notice" id="verifyResult" aria-live="polite">No verification search performed.</div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Recent Token Activity</h2>
+    <div style="overflow-x:auto"><table><thead><tr><th>Time</th><th>Action</th><th>Token ID</th><th>Price</th><th>Wallet after</th></tr></thead><tbody id="history"><tr><td colspan="5" class="empty">No demo purchases yet.</td></tr></tbody></table></div>
   </section>
   <footer>QZIX COIN · Prototype only · No guaranteed profit · Not an investment offer</footer>
 </div>
 <script>
-
 const indianStates = [
  ["Andhra Pradesh","AP"],["Arunachal Pradesh","AR"],["Assam","AS"],["Bihar","BR"],
  ["Chhattisgarh","CG"],["Goa","GA"],["Gujarat","GJ"],["Haryana","HR"],
@@ -104,63 +118,81 @@ const indianStates = [
  ["Rajasthan","RJ"],["Sikkim","SK"],["Tamil Nadu","TN"],["Telangana","TS"],
  ["Tripura","TR"],["Uttar Pradesh","UP"],["Uttarakhand","UK"],["West Bengal","WB"]
 ];
+const TOKEN_PRICE=2;
+let wallet=1000, ownedTokens=[], selectedToken=null, history=[];
+const money=n=>'₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+function allTokenIds(){return indianStates.flatMap(([name,code])=>Array.from({length:100},(_,i)=>({id:code+'-'+String(i+1).padStart(3,'0'),state:name,code})));}
+const tokenCatalog=allTokenIds();
 function renderStateTokens(){
  const grid=document.getElementById('stateGrid');
  grid.innerHTML=indianStates.map(([name,code])=>{
-   const tokens=Array.from({length:100},(_,i)=>'<span class="token-chip">'+code+'-'+String(i+1).padStart(3,'0')+'</span>').join('');
-   return '<details class="state-item" data-state="'+name.toLowerCase()+'" data-code="'+code.toLowerCase()+'"><summary><span>'+name+'</span><span class="state-count">100 Tokens ▾</span></summary><div class="token-list">'+tokens+'</div></details>';
+  const tokens=Array.from({length:100},(_,i)=>{
+   const id=code+'-'+String(i+1).padStart(3,'0');
+   const owned=ownedTokens.includes(id), selected=selectedToken===id;
+   const cls=owned?'owned':(selected?'selected':'available');
+   const label=owned?'OWNED':(selected?'SELECTED':'BUY');
+   return '<button type="button" class="token-chip '+cls+(selected?' selected':'')+'" data-token="'+id+'" '+(owned?'disabled':'')+' aria-label="'+id+' '+label+'">'+id+'</button>';
+  }).join('');
+  return '<details class="state-item" data-state="'+name.toLowerCase()+'" data-code="'+code.toLowerCase()+'"><summary><span>'+name+'</span><span class="state-count">100 Tokens ▾</span></summary><div class="token-list">'+tokens+'</div></details>';
  }).join('');
- filterStates('');
+ grid.querySelectorAll('button[data-token]').forEach(btn=>btn.addEventListener('click',()=>selectToken(btn.dataset.token)));
+ filterStates(document.getElementById('stateSearch').value);
 }
 function filterStates(query){
- const q=query.trim().toLowerCase();
- let visible=0;
+ const q=query.trim().toLowerCase();let visible=0;
  document.querySelectorAll('#stateGrid .state-item').forEach(item=>{
   const match=item.dataset.state.includes(q)||item.dataset.code.includes(q);
-  item.hidden=!match;
-  if(match) visible++;
+  item.hidden=!match;if(match)visible++;
  });
  document.getElementById('noStateResults').hidden=visible!==0;
 }
-document.getElementById('stateSearch').addEventListener('input',e=>filterStates(e.target.value));
-
-let price=2, wallet=1000, shares=0, trades=0, history=[];
-const money=n=>'₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+function selectToken(id){
+ if(ownedTokens.includes(id)){msg(id+' is already in your demo account.');return;}
+ selectedToken=id;
+ document.getElementById('selectedToken').textContent=id;
+ document.getElementById('buyBtn').disabled=wallet<TOKEN_PRICE;
+ msg('Selected '+id+'. Press BUY SELECTED TOKEN to complete the demo purchase.');
+ renderStateTokens();
+}
 function render(){
- document.getElementById('price').textContent=money(price);
- document.getElementById('buyPrice').textContent=money(price);
- document.getElementById('sellPrice').textContent=money(price);
+ document.getElementById('price').textContent=money(TOKEN_PRICE);
+ document.getElementById('buyPrice').textContent=money(TOKEN_PRICE);
  document.getElementById('wallet').textContent=money(wallet);
  document.getElementById('wallet2').textContent=money(wallet);
- document.getElementById('shares').textContent=shares;
- document.getElementById('shares2').textContent=shares;
- document.getElementById('trades').textContent=trades;
- document.getElementById('value').textContent=money(shares*price);
- document.getElementById('buyBtn').disabled=wallet<price;
- document.getElementById('sellBtn').disabled=shares<1;
+ document.getElementById('shares').textContent=ownedTokens.length;
+ document.getElementById('shares2').textContent=ownedTokens.length;
+ document.getElementById('available').textContent=tokenCatalog.length-ownedTokens.length;
+ document.getElementById('value').textContent=money(ownedTokens.length*TOKEN_PRICE);
+ document.getElementById('buyBtn').disabled=!selectedToken||ownedTokens.includes(selectedToken)||wallet<TOKEN_PRICE;
+ const mine=document.getElementById('myTokens');
+ mine.innerHTML=ownedTokens.length?ownedTokens.map(id=>'<span class="token-chip owned">'+id+'</span>').join(''):'<span class="muted">No demo tokens purchased yet.</span>';
  const body=document.getElementById('history');
- body.innerHTML=history.length?history.map(x=>`<tr><td>${x.time}</td><td style="color:${x.action==='BUY'?'#28d69a':'#ff647c'}">${x.action}</td><td>${money(x.price)}</td><td>${money(x.wallet)}</td><td>${x.shares}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No demo transactions yet.</td></tr>';
+ body.innerHTML=history.length?history.map(x=>'<tr><td>'+x.time+'</td><td style="color:#28d69a">BUY TOKEN</td><td>'+x.id+'</td><td>'+money(x.price)+'</td><td>'+money(x.wallet)+'</td></tr>').join(''):'<tr><td colspan="5" class="empty">No demo purchases yet.</td></tr>';
 }
-function trade(action){
- if(action==='BUY'){
-  if(wallet<price){msg('Not enough demo wallet balance.');return;}
-  wallet-=price; shares++; price+=2;
- }else{
-  if(shares<1){msg('You do not own a share to sell.');return;}
-  wallet+=price; shares--; price=Math.max(2,price-2);
- }
- trades++;
- history.unshift({time:new Date().toLocaleTimeString(),action,price:action==='BUY'?price-2:price+2,wallet,shares});
- history=history.slice(0,12);
- document.getElementById('movement').textContent=action==='BUY'?'▲ Demo price increased by ₹2':'▼ Demo price decreased by ₹2 (minimum ₹2)';
- msg(action==='BUY'?'Demo buy successful: 1 share added.':'Demo sell successful: 1 share sold.');
- render();
+function buySelectedToken(){
+ if(!selectedToken){msg('Please select a Token ID first.');return;}
+ if(ownedTokens.includes(selectedToken)){msg('This Token ID is already marked as owned in your demo.');return;}
+ if(wallet<TOKEN_PRICE){msg('Insufficient demo wallet balance.');return;}
+ const id=selectedToken;wallet-=TOKEN_PRICE;ownedTokens.push(id);
+ history.unshift({time:new Date().toLocaleTimeString(),id,price:TOKEN_PRICE,wallet});
+ history=history.slice(0,20);selectedToken=null;
+ document.getElementById('selectedToken').textContent='None';
+ msg('Demo purchase successful: '+id+' added to My QZIX Tokens. No real payment or ownership was created.');
+ renderStateTokens();render();
 }
 function msg(t){document.getElementById('message').textContent=t;}
-document.getElementById('buyBtn').addEventListener('click',()=>trade('BUY'));
-document.getElementById('sellBtn').addEventListener('click',()=>trade('SELL'));
-renderStateTokens();
-render();
+function verifyToken(){
+ const id=document.getElementById('verifyInput').value.trim().toUpperCase();
+ const result=document.getElementById('verifyResult');
+ if(!/^[A-Z]{2}-\d{3}$/.test(id)){result.textContent='Enter a valid Token ID, for example PB-001.';return;}
+ const exists=tokenCatalog.some(t=>t.id===id);
+ if(!exists){result.textContent=id+' is not in the current 28-State demo token list.';return;}
+ result.textContent=ownedTokens.includes(id)?id+' is listed in this browser’s demo account. This is not legal or blockchain ownership verification.':id+' exists in the demo list but is not owned in this browser’s demo account. This is not a live ownership registry.';
+}
+document.getElementById('stateSearch').addEventListener('input',e=>filterStates(e.target.value));
+document.getElementById('buyBtn').addEventListener('click',buySelectedToken);
+document.getElementById('verifyBtn').addEventListener('click',verifyToken);
+renderStateTokens();render();
 </script>
 </body>
 </html>
