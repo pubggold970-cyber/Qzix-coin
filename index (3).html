@@ -32,6 +32,7 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
 .state-total{color:var(--gold);font-size:12px;font-weight:bold}
 .state-search{width:100%;margin:0 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:#0b1728;color:var(--text);font-size:14px;outline:none}.state-search:focus{border-color:var(--gold);box-shadow:0 0 0 2px #f6c85f22}.state-search::placeholder{color:#8195af}
 .state-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#stateSearchResults{margin:0 0 14px}#stateSearchResults[hidden]{display:none}
 .state-item{background:#0b1728;border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
 .state-item summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;font-weight:bold;list-style:none}
 .state-item summary::-webkit-details-marker{display:none}
@@ -71,6 +72,7 @@ footer{text-align:center;color:#7287a2;font-size:11px;padding:25px 0 8px}
     </div>
     <p class="muted">Search a State, open it, then choose an available Token ID to try a demo purchase. Each State has its own 100 fixed Token IDs.</p>
     <input id="stateSearch" class="state-search" type="search" placeholder="Search State (e.g. Punjab or PB)" aria-label="Search Indian States" autocomplete="off">
+    <div class="state-grid" id="stateSearchResults" aria-live="polite" hidden></div>
     <div class="state-grid" id="stateGrid"></div>
     <p class="muted" id="noStateResults" hidden>No matching State found.</p>
   </section>
@@ -130,11 +132,20 @@ function renderStateTokens(){
  filterStates(document.getElementById('stateSearch').value);
 }
 function filterStates(query){
- const q=query.trim().toLowerCase();let visible=0;
- document.querySelectorAll('#stateGrid .state-item').forEach(item=>{
-  const match=item.dataset.state.includes(q)||item.dataset.code.includes(q);
-  item.hidden=!match;if(match)visible++;
+ const q=query.trim().toLowerCase();
+ const grid=document.getElementById('stateGrid');
+ const results=document.getElementById('stateSearchResults');
+ const items=Array.from(document.querySelectorAll('#stateGrid .state-item, #stateSearchResults .state-item'));
+ let visible=0;
+ items.forEach(item=>{
+  const match=!q||item.dataset.state.includes(q)||item.dataset.code.includes(q);
+  if(match)visible++;
+  item.hidden=!match;
+  if(q&&match)results.appendChild(item);
+  else grid.appendChild(item);
  });
+ results.hidden=!q||visible===0;
+ grid.hidden=!!q;
  document.getElementById('noStateResults').hidden=visible!==0;
 }
 function openUpiPayment(id){
