@@ -155,7 +155,7 @@ function render(){
  const body=document.getElementById('history');
  body.innerHTML=history.length?history.map(x=>'<tr><td>'+x.time+'</td><td style="color:#28d69a">BUY TOKEN</td><td>'+x.id+'</td><td>'+money(x.price)+'</td><td>'+money(x.wallet)+'</td></tr>').join(''):'<tr><td colspan="5" class="empty">No demo purchases yet.</td></tr>';
 }
-function msg(t){document.getElementById('message').textContent=t;}
+function msg(t){const el=document.getElementById('message');if(el)el.textContent=t;}
 function verifyToken(){
  const id=document.getElementById('verifyInput').value.trim().toUpperCase();
  const result=document.getElementById('verifyResult');
